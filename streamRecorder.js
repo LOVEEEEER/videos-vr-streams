@@ -11,32 +11,34 @@ class StreamRecorder {
     }
 
     init() {
-        console.log("Initializing FFmpeg process...");
-        this.ffmpegProcess = ffmpeg({ source: 'pipe:0' })
+        console.log("Initializing FFmpeg process for MJPEG...");
+        this.ffmpegProcess = ffmpeg({ source: 'pipe:0' }) // Указываем, что входной поток будет из stdin
+            .inputFormat('mjpeg') // Указываем формат входного потока
             .output(this.outputFile)
-            .audioCodec('aac')
+            .audioCodec('aac') // Если необходимо, можно добавить аудио
             .videoCodec('libx264')
-            .format('mp4')
+            .format('mp4') // Выходной формат
             .on('start', commandLine => {
                 console.log('FFmpeg process started: ' + commandLine);
             })
             .on('error', err => {
-                console.error('Error: ' + err.message);
+                console.error('Error during FFmpeg processing: ' + err.message);
             })
             .on('end', () => {
                 console.log('Recording finished successfully');
             })
             .run();
-    
-        if (!this.ffmpegProcess) {
-            console.error("FFmpeg process failed to initialize.");
+
+        // Проверка наличия stdin
+        if (this.ffmpegProcess && this.ffmpegProcess.stdin) {
+            console.log("FFmpeg stdin is available.");
+        } else {
+            console.error("FFmpeg process is not initialized or stdin is missing.");
         }
     }
-    
 
     write(data) {
         if (this.ffmpegProcess && this.ffmpegProcess.stdin) {
-            console.log('FFmpeg stdin writable:', this.ffmpegProcess.stdin.writable);
             if (this.ffmpegProcess.stdin.writable) {
                 console.log('Writing data to ffmpeg stdin');
                 this.ffmpegProcess.stdin.write(data);
@@ -47,7 +49,6 @@ class StreamRecorder {
             console.error('FFmpeg process is not initialized or stdin is missing');
         }
     }
-    
 
     end() {
         if (this.ffmpegProcess) {
@@ -58,3 +59,4 @@ class StreamRecorder {
 }
 
 module.exports = StreamRecorder;
+
