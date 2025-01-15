@@ -228,6 +228,7 @@ function initializeWebSocketHandling(ws)
                     {
                         if(clients.get(wsid).roomName !== 'Lobby')
                         {
+                            console.log(recorder)
                             recorder.write(data);
 
                             var myRoomName = clients.get(wsid).roomName;
