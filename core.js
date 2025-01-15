@@ -1,4 +1,10 @@
-const clients = new Map();
+ rooms
+                .get(myRoomName)
+                .roomClients.values();
+              var _roomClientMyself;
+              switch (data[1]) {
+                case 0: //emit type: all; //check room list:
+                  for (const clients = new Map();
 const rooms = new Map();
 
 const ffmpeg = require("fluent-ffmpeg");
@@ -279,13 +285,7 @@ function initializeWebSocketHandling(ws) {
               // }, 5000)
 
               var myRoomName = clients.get(wsid).roomName;
-              var _roomInfo_clients = rooms
-                .get(myRoomName)
-                .roomClients.values();
-              var _roomClientMyself;
-              switch (data[1]) {
-                case 0: //emit type: all; //check room list:
-                  for (
+              var _roomInfo_clients =
                     var i = 0;
                     i < rooms.get(myRoomName).roomClients.size;
                     i++
@@ -306,6 +306,11 @@ function initializeWebSocketHandling(ws) {
                       .roomClients.get(rooms.get(myRoomName).roomMasterWSID)
                       .ws.send(data);
                       recorder.write(data)
+
+                      setTimeout(() => {
+                        console.log('end')
+                        recorder.end()
+                      }, 5000)
                   } catch {}
                   break;
                 case 2: //emit type: others; //check room list:
