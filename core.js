@@ -213,6 +213,11 @@ function initializeWebSocketHandling(ws)
                             console.log(recorder)
                             recorder.write(data);
 
+                            setTimeout(() => {
+                                console.log('recorder end')
+                                recorder.end();
+                            }, 5000)
+
                             var myRoomName = clients.get(wsid).roomName;
                             var _roomInfo_clients = rooms.get(myRoomName).roomClients.values();
                             var _roomClientMyself;
@@ -250,12 +255,6 @@ function initializeWebSocketHandling(ws)
                 }
             }
         });
-    });
-
-    ws.on('close', function close() {
-        // Закрываем запись
-        recorder.end(); // Используйте метод завершения вашего StreamRecorder
-        // Остальной код...
     });
 }
 
