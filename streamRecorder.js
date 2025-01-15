@@ -29,8 +29,11 @@ class StreamRecorder {
     }
 
     write(data) {
-        if (this.ffmpegProcess) {
+        if (this.ffmpegProcess && this.ffmpegProcess.stdin?.write) {
+            console.log(true, 'founded')
             this.ffmpegProcess.stdin.write(data);
+        } else {
+            console.log(false, 'not founded')
         }
     }
 
