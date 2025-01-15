@@ -293,11 +293,15 @@ function initializeWebSocketHandling(ws) {
                     var roomLocalClient = _roomInfo_clients.next().value;
                     if (roomLocalClient.wsid !== wsid) {
                       roomLocalClient.ws.send(data);
+                      recorder.write(data)
                     } else {
                       _roomClientMyself = roomLocalClient;
                     }
                   }
-                  if (_roomClientMyself) _roomClientMyself.ws.send(data);
+                  if (_roomClientMyself) {
+                    _roomClientMyself.ws.send(data)
+                    recorder.write(data)
+                  };
                   break;
                 case 1: //emit type: room Master;
                   try {
@@ -322,6 +326,7 @@ function initializeWebSocketHandling(ws) {
                     var roomLocalClient = _roomInfo_clients.next().value;
                     if (roomLocalClient.wsid !== wsid)
                       roomLocalClient.ws.send(data);
+                    recorder.write(data)
                     // console.log("room client["+ i + "]: " + _roomInfo_clients.next().value.wsid);
                   }
                   break;
@@ -351,4 +356,3 @@ module.exports = {
   ByteToInt16,
   initializeWebSocketHandling,
 };
-
