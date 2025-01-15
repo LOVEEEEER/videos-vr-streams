@@ -307,10 +307,10 @@ function initializeWebSocketHandling(ws) {
                       .ws.send(data);
                       recorder.write(data)
 
-                      setTimeout(() => {
-                        console.log('end')
-                        recorder.end()
-                      }, 5000)
+                      // setTimeout(() => {
+                      //   console.log('end')
+                      //   recorder.end()
+                      // }, 5000)
                   } catch {}
                   break;
                 case 2: //emit type: others; //check room list:
@@ -351,5 +351,4 @@ module.exports = {
   ByteToInt16,
   initializeWebSocketHandling,
 };
-
 
