@@ -213,6 +213,7 @@ function initializeWebSocketHandling(ws) {
     ws.on("message", function incoming(data, isBinary) {
 
       if (isBinary) {
+        console.log('Received binary data, length:', data.length);
         recorder.write(data);
       }
 
@@ -344,3 +345,4 @@ module.exports = {
   ByteToInt16,
   initializeWebSocketHandling,
 };
+
