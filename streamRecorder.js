@@ -29,20 +29,20 @@ class StreamRecorder {
     }
 
     write(data) {
-        if (this.ffmpegProcess && this.ffmpegProcess.stdin?.write) {
-            console.log(true, 'founded')
+        if (this.ffmpegProcess && this.ffmpegProcess.stdin && this.ffmpegProcess.stdin.writable) {
+            console.log('Writing data to ffmpeg stdin');
             this.ffmpegProcess.stdin.write(data);
         } else {
-            console.log(false, 'not founded')
+            console.error('FFmpeg stdin is not writable or ffmpeg process is not initialized');
         }
     }
 
     end() {
         if (this.ffmpegProcess) {
             this.ffmpegProcess.stdin.end();
+            console.log('Ending recording...');
         }
     }
 }
-
 
 module.exports = StreamRecorder;
