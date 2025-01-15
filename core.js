@@ -2,7 +2,28 @@ const clients = new Map();
 const rooms = new Map();
 
 const StreamRecorder = require('./streamRecorder');
-const recorder = new StreamRecorder('output.mp4'); // Путь к файлу записи
+const ffmpeg = require('fluent-ffmpeg');
+const ffmpegPath = require('ffmpeg-static');
+
+ffmpeg.setFfmpegPath(ffmpegPath);
+
+function startRecording(outputFile) {
+    return new ffmpeg({ source: 'pipe:0' }) // Используем pipe для ввода данных
+        .output(outputFile)
+        .audioCodec('aac')
+        .videoCodec('libx264')
+        .format('mp4')
+        .on('start', function(commandLine) {
+            console.log('FFmpeg process started: ' + commandLine);
+        })
+        .on('error', function(err) {
+            console.error('Error: ' + err.message);
+        })
+        .on('end', function() {
+            console.log('Recording finished successfully');
+        })
+        .run();
+}
 
 function uuidv4()
 {
@@ -156,7 +177,8 @@ function initializeWebSocketHandling(ws)
         //FMEventDecode, assuming data structure: "fmevent:type:variable"
         function FMEventEncode(inputType, inputVariable) { return "fmevent" + ":" + inputType + ":" + inputVariable; }
         function FMEventDecode(inputString) { return inputString.split(":"); }
-        ws.on('message', function incoming(data, isBinary)
+        const recorder = startRecording('output.mp4');
+        ws.on('message', function incoming(data, isBinary) 
         {
             if (isBinary === false)
             {
@@ -201,17 +223,12 @@ function initializeWebSocketHandling(ws)
                 //data type: binary bytes
                 if(data.length > 4)
                 {
-			//Strat recording FFmpeg
-		    if (!recorder.ffmpegProcess) {
-		        recorder.startRecording();
-		    }
-		    recorder.write(data);
-
-
                     if(clients.get(wsid).networkType === 'Room')
                     {
                         if(clients.get(wsid).roomName !== 'Lobby')
                         {
+                            recorder.write(data);
+
                             var myRoomName = clients.get(wsid).roomName;
                             var _roomInfo_clients = rooms.get(myRoomName).roomClients.values();
                             var _roomClientMyself;
@@ -249,6 +266,12 @@ function initializeWebSocketHandling(ws)
                 }
             }
         });
+    });
+
+    ws.on('close', function close() {
+        // Закрываем запись
+        recorder.end(); // Используйте метод завершения вашего StreamRecorder
+        // Остальной код...
     });
 }
 
