@@ -11,6 +11,7 @@ class StreamRecorder {
     }
 
     init() {
+        console.log("Initializing FFmpeg process...");
         this.ffmpegProcess = ffmpeg({ source: 'pipe:0' })
             .output(this.outputFile)
             .audioCodec('aac')
@@ -26,16 +27,27 @@ class StreamRecorder {
                 console.log('Recording finished successfully');
             })
             .run();
-    }
-
-    write(data) {
-        if (this.ffmpegProcess && this.ffmpegProcess.stdin && this.ffmpegProcess.stdin.writable) {
-            console.log('Writing data to ffmpeg stdin');
-            this.ffmpegProcess.stdin.write(data);
-        } else {
-            console.error('FFmpeg stdin is not writable or ffmpeg process is not initialized');
+    
+        if (!this.ffmpegProcess) {
+            console.error("FFmpeg process failed to initialize.");
         }
     }
+    
+
+    write(data) {
+        if (this.ffmpegProcess && this.ffmpegProcess.stdin) {
+            console.log('FFmpeg stdin writable:', this.ffmpegProcess.stdin.writable);
+            if (this.ffmpegProcess.stdin.writable) {
+                console.log('Writing data to ffmpeg stdin');
+                this.ffmpegProcess.stdin.write(data);
+            } else {
+                console.error('FFmpeg stdin is not writable');
+            }
+        } else {
+            console.error('FFmpeg process is not initialized or stdin is missing');
+        }
+    }
+    
 
     end() {
         if (this.ffmpegProcess) {
