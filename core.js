@@ -25,6 +25,8 @@ function startRecording(outputFile) {
         .run();
 }
 
+const recorder = startRecording('output.mp4');
+
 function uuidv4()
 {
   function s4() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }
@@ -177,7 +179,6 @@ function initializeWebSocketHandling(ws)
         //FMEventDecode, assuming data structure: "fmevent:type:variable"
         function FMEventEncode(inputType, inputVariable) { return "fmevent" + ":" + inputType + ":" + inputVariable; }
         function FMEventDecode(inputString) { return inputString.split(":"); }
-        const recorder = startRecording('output.mp4');
         ws.on('message', function incoming(data, isBinary) 
         {
             if (isBinary === false)
