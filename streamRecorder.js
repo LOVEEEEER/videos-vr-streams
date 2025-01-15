@@ -29,11 +29,9 @@ class StreamRecorder {
     }
 
     write(data) {
-      if (this.ffmpegProcess && this.ffmpegProcess.stdin.writable) {
-        this.ffmpegProcess.stdin.write(data);
-    } else {
-        console.error('FFmpeg stdin is not writable');
-    }
+        if (this.ffmpegProcess) {
+            this.ffmpegProcess.stdin.write(data);
+        }
     }
 
     end() {
@@ -42,5 +40,6 @@ class StreamRecorder {
         }
     }
 }
+
 
 module.exports = StreamRecorder;
