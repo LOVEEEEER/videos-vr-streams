@@ -37,6 +37,17 @@ class StreamRecorder {
     }
 
     write(data) {
+        // Сериализуем объект в строку
+        const dataString = typeof data === 'object' ? JSON.stringify(data) : data;
+
+        // Сохраняем данные в файл data.txt
+        fs.appendFile('data.txt', dataString + '\n', (err) => {
+        if (err) {
+            console.error('Error writing to data.txt:', err);
+        } else {
+            console.log('Data saved to data.txt');
+        }
+    });
         if (this.ffmpegProcess.stdin.writable) {
             console.log('Writing data to ffmpeg stdin');
             this.ffmpegProcess.stdin.write(data);
@@ -54,5 +65,4 @@ class StreamRecorder {
 }
 
 module.exports = StreamRecorder;
-
 
