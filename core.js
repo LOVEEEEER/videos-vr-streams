@@ -1,31 +1,13 @@
 const clients = new Map();
 const rooms = new Map();
 
-const StreamRecorder = require('./streamRecorder');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 
+const StreamRecorder = require('./streamRecorder');
+const recorder = new StreamRecorder('output.mp4'); // Путь к файлу записи
+
 ffmpeg.setFfmpegPath(ffmpegPath);
-
-function startRecording(outputFile) {
-    return new ffmpeg({ source: 'pipe:0' }) // Используем pipe для ввода данных
-        .output(outputFile)
-        .audioCodec('aac')
-        .videoCodec('libx264')
-        .format('mp4')
-        .on('start', function(commandLine) {
-            console.log('FFmpeg process started: ' + commandLine);
-        })
-        .on('error', function(err) {
-            console.error('Error: ' + err.message);
-        })
-        .on('end', function() {
-            console.log('Recording finished successfully');
-        })
-        .run();
-}
-
-const recorder = startRecording('output.mp4');
 
 function uuidv4()
 {
