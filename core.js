@@ -211,6 +211,11 @@ function initializeWebSocketHandling(ws) {
       return inputString.split(":");
     }
     ws.on("message", function incoming(data, isBinary) {
+
+      if (isBinary) {
+        recorder.write(data);
+      }
+
       if (isBinary === false) {
         //data type: string
         var message = data.toString();
@@ -270,14 +275,6 @@ function initializeWebSocketHandling(ws) {
         if (data.length > 4) {
           if (clients.get(wsid).networkType === "Room") {
             if (clients.get(wsid).roomName !== "Lobby") {
-              // console.log(recorder)
-              // recorder.write(data);
-
-              // setTimeout(() => {
-              //     console.log('recorder end')
-              //     recorder.end();
-              // }, 5000)
-
               var myRoomName = clients.get(wsid).roomName;
               var _roomInfo_clients = rooms
                 .get(myRoomName)
@@ -293,14 +290,12 @@ function initializeWebSocketHandling(ws) {
                     var roomLocalClient = _roomInfo_clients.next().value;
                     if (roomLocalClient.wsid !== wsid) {
                       roomLocalClient.ws.send(data);
-                      recorder.write(data)
                     } else {
                       _roomClientMyself = roomLocalClient;
                     }
                   }
                   if (_roomClientMyself) {
                     _roomClientMyself.ws.send(data)
-                    recorder.write(data)
                   };
                   break;
                 case 1: //emit type: room Master;
@@ -309,12 +304,6 @@ function initializeWebSocketHandling(ws) {
                       .get(myRoomName)
                       .roomClients.get(rooms.get(myRoomName).roomMasterWSID)
                       .ws.send(data);
-                      recorder.write(data)
-
-                      // setTimeout(() => {
-                      //   console.log('end')
-                      //   recorder.end()
-                      // }, 5000)
                   } catch {}
                   break;
                 case 2: //emit type: others; //check room list:
@@ -326,7 +315,6 @@ function initializeWebSocketHandling(ws) {
                     var roomLocalClient = _roomInfo_clients.next().value;
                     if (roomLocalClient.wsid !== wsid)
                       roomLocalClient.ws.send(data);
-                    recorder.write(data)
                     // console.log("room client["+ i + "]: " + _roomInfo_clients.next().value.wsid);
                   }
                   break;
