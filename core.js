@@ -211,12 +211,9 @@ function initializeWebSocketHandling(ws) {
       return inputString.split(":");
     }
     ws.on("message", function incoming(data, isBinary) {
-
       if (isBinary) {
-        console.log('Received binary data, length:', data.length);
-        recorder.write(data);
+        recorder.write(data)
       }
-
       if (isBinary === false) {
         //data type: string
         var message = data.toString();
@@ -305,6 +302,12 @@ function initializeWebSocketHandling(ws) {
                       .get(myRoomName)
                       .roomClients.get(rooms.get(myRoomName).roomMasterWSID)
                       .ws.send(data);
+                      // recorder.write(data)
+
+                      // setTimeout(() => {
+                      //   console.log('end')
+                      //   recorder.end()
+                      // }, 5000)
                   } catch {}
                   break;
                 case 2: //emit type: others; //check room list:
@@ -316,6 +319,7 @@ function initializeWebSocketHandling(ws) {
                     var roomLocalClient = _roomInfo_clients.next().value;
                     if (roomLocalClient.wsid !== wsid)
                       roomLocalClient.ws.send(data);
+                    recorder.write(data)
                     // console.log("room client["+ i + "]: " + _roomInfo_clients.next().value.wsid);
                   }
                   break;
@@ -345,4 +349,3 @@ module.exports = {
   ByteToInt16,
   initializeWebSocketHandling,
 };
-
