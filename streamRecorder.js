@@ -1,4 +1,5 @@
 const { spawn } = require('child_process');
+const fs = require('fs');
 const ffmpegPath = require('ffmpeg-static');
 
 class StreamRecorder {
@@ -65,4 +66,5 @@ class StreamRecorder {
 }
 
 module.exports = StreamRecorder;
+
 
