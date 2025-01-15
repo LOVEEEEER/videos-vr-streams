@@ -144,6 +144,7 @@ function initializeWebSocketHandling(ws) {
     }, 30000);
 
     ws.on("close", function close() {
+      recorder.end();
       clearInterval(interval);
       var _networkType = clients.get(wsid).networkType;
       console.log("== ON CLOSE: " + wsid + " | " + _networkType);
