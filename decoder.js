@@ -1,8 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { createCanvas, Image } = require('canvas');
 const JPEG = require('jpeg-js');
-const { Transform } = require('stream');
+const ffmpeg = require('fluent-ffmpeg');
 
 class GameViewDecoder {
   constructor(outputPath) {
@@ -13,20 +12,22 @@ class GameViewDecoder {
     this.previous = 0;
     this.current = 0;
     this.streamLength = 0;
-    this.canvas = createCanvas(1, 1);
-    this.context = this.canvas.getContext('2d');
-    this.videoStream = fs.createWriteStream(outputPath);
+    this.tempDir = path.join(__dirname, 'temp_frames');
+
+    // Create temporary directory for frames if it doesn't exist
+    if (!fs.existsSync(this.tempDir)) {
+      fs.mkdirSync(this.tempDir);
+    }
+    this.frameCount = 0;
   }
 
   async processImageData(data) {
     const imageData = JPEG.decode(data, true);
-    this.canvas.width = imageData.width;
-    this.canvas.height = imageData.height;
-    this.context.putImageData(new ImageData(imageData.data, imageData.width, imageData.height), 0, 0);
 
-    // Save each frame to the video stream
-    const stream = this.canvas.createJPEGStream();
-    stream.pipe(this.videoStream, { end: false });
+    // Save each frame as a JPEG file
+    const framePath = path.join(this.tempDir, `frame_${this.frameCount}.jpg`);
+    fs.writeFileSync(framePath, JPEG.encode(imageData, 90).data);
+    this.frameCount++;
   }
 
   async processMJPEGData(data) {
@@ -84,7 +85,20 @@ class GameViewDecoder {
   }
 
   close() {
-    this.videoStream.end();
+    // Create video from frames using ffmpeg
+    ffmpeg()
+      .input(path.join(this.tempDir, 'frame_%d.jpg'))
+      .inputFPS(30) // Adjust frame rate as needed
+      .output(this.outputPath)
+      .on('end', () => {
+        console.log('Video has been created successfully');
+        // Clean up temporary frame files
+        fs.rmdirSync(this.tempDir, { recursive: true });
+      })
+      .on('error', (err) => {
+        console.error('Error creating video:', err);
+      })
+      .run();
   }
 }
 
