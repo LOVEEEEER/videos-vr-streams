@@ -1,13 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const { createCanvas, Image } = require('canvas');
 const JPEG = require('jpeg-js');
 
 class GameViewDecoder {
   constructor(outputPath) {
     this.outputPath = outputPath;
-    this.canvas = createCanvas(1, 1);
-    this.context = this.canvas.getContext('2d');
     this.videoStream = fs.createWriteStream(outputPath);
     this.label = 1001;
     this.dataID = 0;
@@ -21,12 +18,8 @@ class GameViewDecoder {
 
   async processImageData(data) {
     const imageData = JPEG.decode(data, true);
-    this.canvas.width = imageData.width;
-    this.canvas.height = imageData.height;
     this.context.putImageData(new ImageData(imageData.data, imageData.width, imageData.height), 0, 0);
 
-    // Save each frame to the video stream
-    const stream = this.canvas.createJPEGStream();
     stream.pipe(this.videoStream, { end: false });
   }
 
