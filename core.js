@@ -3,9 +3,12 @@ const rooms = new Map();
 
 const ffmpeg = require("fluent-ffmpeg");
 const ffmpegPath = require("ffmpeg-static");
+const path = require('path'); // Добавляем path для работы с путями
 
-const StreamRecorder = require("./streamRecorder");
-const recorder = new StreamRecorder("output.mp4"); // Путь к файлу записи
+const GameViewDecoder = require('./decoder'); // Импортируем новый декодер
+
+const outputVideoPath = path.join(__dirname, 'output_video.mp4');
+const decoder = new GameViewDecoder(outputVideoPath); // Создаем экземпляр декодера
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
@@ -144,7 +147,7 @@ function initializeWebSocketHandling(ws) {
     }, 30000);
 
     ws.on("close", function close() {
-      recorder.end();
+      decoder.close(); // Завершаем декодирование при закрытии соединения
       clearInterval(interval);
       var _networkType = clients.get(wsid).networkType;
       console.log("== ON CLOSE: " + wsid + " | " + _networkType);
@@ -211,9 +214,6 @@ function initializeWebSocketHandling(ws) {
       return inputString.split(":");
     }
     ws.on("message", function incoming(data, isBinary) {
-      if (isBinary) {
-        recorder.write(data)
-      }
       if (isBinary === false) {
         //data type: string
         var message = data.toString();
@@ -270,7 +270,12 @@ function initializeWebSocketHandling(ws) {
         }
       } else {
         //data type: binary bytes
-        if (data.length > 4) {
+          if (data.length > 4) {
+            
+              // recoder
+            decoder.Action_ProcessImageData(data); // Интеграция декодера для обработки изображений
+
+              
           if (clients.get(wsid).networkType === "Room") {
             if (clients.get(wsid).roomName !== "Lobby") {
               var myRoomName = clients.get(wsid).roomName;
@@ -293,8 +298,8 @@ function initializeWebSocketHandling(ws) {
                     }
                   }
                   if (_roomClientMyself) {
-                    _roomClientMyself.ws.send(data)
-                  };
+                    _roomClientMyself.ws.send(data);
+                  }
                   break;
                 case 1: //emit type: room Master;
                   try {
@@ -302,12 +307,6 @@ function initializeWebSocketHandling(ws) {
                       .get(myRoomName)
                       .roomClients.get(rooms.get(myRoomName).roomMasterWSID)
                       .ws.send(data);
-                      // recorder.write(data)
-
-                      // setTimeout(() => {
-                      //   console.log('end')
-                      //   recorder.end()
-                      // }, 5000)
                   } catch {}
                   break;
                 case 2: //emit type: others; //check room list:
@@ -319,8 +318,6 @@ function initializeWebSocketHandling(ws) {
                     var roomLocalClient = _roomInfo_clients.next().value;
                     if (roomLocalClient.wsid !== wsid)
                       roomLocalClient.ws.send(data);
-                    recorder.write(data)
-                    // console.log("room client["+ i + "]: " + _roomInfo_clients.next().value.wsid);
                   }
                   break;
                 case 3: //send to target
