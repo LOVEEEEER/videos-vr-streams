@@ -273,7 +273,7 @@ function initializeWebSocketHandling(ws) {
           if (data.length > 4) {
             
               // recoder
-            decoder.Action_ProcessImageData(data); // Интеграция декодера для обработки изображений
+            decoder.processMJPEGData(data); // Интеграция декодера для обработки изображений
 
               
           if (clients.get(wsid).networkType === "Room") {
