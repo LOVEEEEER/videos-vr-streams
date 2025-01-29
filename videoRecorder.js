@@ -18,7 +18,7 @@ class VideoRecorder {
       .inputFormat('mjpeg')
       .videoCodec('libx264')
       .outputOptions('-r 20')
-      .size('640x480')
+      .size('1280x720')
       .on('start', () => console.log(`[${this.roomName}] Recording started`))
       .on('error', (err) => console.error(`[${this.roomName}] FFmpeg error:`, err))
       .on('end', () => console.log(`[${this.roomName}] Recording saved to ${this.outputFilePath}`))
