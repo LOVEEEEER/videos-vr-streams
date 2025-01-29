@@ -263,12 +263,7 @@ function initializeWebSocketHandling(ws) {
         }
       } else {
         //data type: binary bytes
-          if (data.length > 4) {
-            
-              // recoder
-            decoder.processMJPEGData(data); // Интеграция декодера для обработки изображений
-
-              
+          if (data.length > 4) {              
           if (clients.get(wsid).networkType === "Room") {
             if (clients.get(wsid).roomName !== "Lobby") {
               var myRoomName = clients.get(wsid).roomName;
