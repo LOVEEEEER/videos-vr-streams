@@ -140,7 +140,6 @@ function initializeWebSocketHandling(ws) {
     }, 30000);
 
     ws.on("close", function close() {
-      decoder.close(); // Завершаем декодирование при закрытии соединения
       clearInterval(interval);
       var _networkType = clients.get(wsid).networkType;
       console.log("== ON CLOSE: " + wsid + " | " + _networkType);
@@ -148,26 +147,11 @@ function initializeWebSocketHandling(ws) {
         var _roomName = clients.get(wsid).roomName;
         if (rooms.has(_roomName)) {
           if (rooms.get(_roomName).roomClients.has(wsid)) {
-            rooms.get(_roomName).roomClients.delete(wsid);
-            console.log(
-              "-- ROOM [" +
-                _roomName +
-                "] " +
-                "Delete Client: " +
-                wsid +
-                " | client count: " +
-                rooms.get(_roomName).roomClients.size
-            );
+            rooms.get(_roomName).roomClients.delete(wsid); 
+            console.log("-- ROOM [" + _roomName + "] " + "Delete Client: " + wsid +" | client count: " + rooms.get(_roomName).roomClients.size);
             if (rooms.get(_roomName).roomClients.size === 0) {
               rooms.delete(_roomName);
-              console.log(
-                "-- ROOM [" +
-                  _roomName +
-                  "] " +
-                  "Delete Room" +
-                  " | room count: " +
-                  rooms.size
-              );
+              console.log("-- ROOM [" + _roomName + "] " + "Delete Room" + " | room count: " + rooms.size );
             } else {
               if (rooms.get(_roomName).roomMasterWSID === wsid) {
                 //assign a new room master...
