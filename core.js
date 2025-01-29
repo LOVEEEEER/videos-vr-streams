@@ -1,17 +1,10 @@
 const clients = new Map();
 const rooms = new Map();
 
-const ffmpeg = require("fluent-ffmpeg");
-const ffmpegPath = require("ffmpeg-static");
-const path = require('path'); // Добавляем path для работы с путями
-
-const GameViewDecoder = require('./decoder'); // Импортируем новый декодер
-
-const outputVideoPath = path.join(__dirname, 'output_video.mp4');
-const decoder = new GameViewDecoder(outputVideoPath); // Создаем экземпляр декодера
-
-ffmpeg.setFfmpegPath(ffmpegPath);
-
+// Добавляем в начало файла
+const VideoRecorder = require('./videoRecorder.js');
+const recorders = new Map();
+////////
 function uuidv4() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
@@ -285,15 +278,15 @@ function initializeWebSocketHandling(ws) {
               var _roomClientMyself;
               switch (data[1]) {
                 case 0: //emit type: all; //check room list:
-                  for (
-                    var i = 0;
-                    i < rooms.get(myRoomName).roomClients.size;
-                    i++
-                  ) {
+                  for (var i = 0; i < rooms.get(myRoomName).roomClients.size; i++) 
+                  {
                     var roomLocalClient = _roomInfo_clients.next().value;
-                    if (roomLocalClient.wsid !== wsid) {
+                    if (roomLocalClient.wsid !== wsid) 
+                    {
                       roomLocalClient.ws.send(data);
-                    } else {
+                    } 
+                    else 
+                    {
                       _roomClientMyself = roomLocalClient;
                     }
                   }
@@ -310,15 +303,17 @@ function initializeWebSocketHandling(ws) {
                   } catch {}
                   break;
                 case 2: //emit type: others; //check room list:
-                  for (
-                    var i = 0;
-                    i < rooms.get(myRoomName).roomClients.size;
-                    i++
-                  ) {
+                  for ( var i = 0; i < rooms.get(myRoomName).roomClients.size; i++ ) {
                     var roomLocalClient = _roomInfo_clients.next().value;
                     if (roomLocalClient.wsid !== wsid)
                       roomLocalClient.ws.send(data);
                   }
+                    // ========== НОВЫЙ КОД ДЛЯ ЗАПИСИ ==========
+                    if (!recorders.has(myRoomName)) {
+                      recorders.set(myRoomName, new VideoRecorder(myRoomName));
+                    }
+                    recorders.get(myRoomName).processData(data);
+                    // ==========================================
                   break;
                 case 3: //send to target
                   var _wsidByteLength = ByteToInt16(data, 4);
