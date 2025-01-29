@@ -27,9 +27,6 @@ class VideoRecorder {
 
   processData(data) {
     try {
-      console.log(`[${this.roomName}] Received data length: ${data.length}`);
-      console.log(`[${this.roomName}] First 20 bytes:`, data.slice(0, 20).toString('hex'));
-
       const imageData = this.decodeFMMJPEG(data);
       this.videoStream.write(imageData);
     } catch (err) {
@@ -47,9 +44,7 @@ class VideoRecorder {
         // Проверяем, начинаются ли данные с GZip-заголовка (0x1F 0x8B)
         if (imageData[0] === 0x1F && imageData[1] === 0x8B) {
           imageData = zlib.unzipSync(imageData);
-        } else {
-          console.warn(`[${this.roomName}] Data is marked as GZipped but does not have a valid GZip header`);
-        }
+        } 
       } catch (err) {
         console.error(`[${this.roomName}] GZip decompression failed:`, err);
         // Возвращаем оригинальные данные, если распаковка не удалась
