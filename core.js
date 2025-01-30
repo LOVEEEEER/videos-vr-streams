@@ -1,10 +1,6 @@
 const clients = new Map();
 const rooms = new Map();
 
-// Добавляем в начало файла
-const VideoRecorder = require('./videoRecorder.js');
-const recorders = new Map();
-////////
 function uuidv4() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
@@ -287,12 +283,7 @@ function initializeWebSocketHandling(ws) {
                     if (roomLocalClient.wsid !== wsid)
                       roomLocalClient.ws.send(data);
                   }
-                    // ========== НОВЫЙ КОД ДЛЯ ЗАПИСИ ==========
-                    if (!recorders.has(myRoomName)) {
-                      recorders.set(myRoomName, new VideoRecorder(myRoomName));
-                    }
-                    recorders.get(myRoomName).processData(data);
-                    // ==========================================
+
                   break;
                 case 3: //send to target
                   var _wsidByteLength = ByteToInt16(data, 4);
